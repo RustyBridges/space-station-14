@@ -1,0 +1,30 @@
+# Server settings for the Derelict co-op salvage mode.
+# Start the server with: --cvar config.presets=derelict   (see runserver-derelict.sh)
+
+[game]
+defaultpreset = "Derelict"
+fallbackenabled = false
+map = "DerelictCrewShip"
+map_pool = "DerelictMapPool"
+map_rotation = false
+lobbyenabled = true
+lobbyduration = 30
+role_timers = false
+role_loadout_timers = false
+new_character_jobs = "DerelictSalvager"
+soft_max_players = 4
+
+[events]
+enabled = false
+
+[shuttle]
+# Short FTL cooldown so the crew can leave a site quickly and is not stuck waiting in deep space.
+cooldown = 15
+arrivals = false
+emergency = false
+grid_fill = false
+
+[vote]
+restart_enabled = true
+preset_enabled = false
+map_enabled = false

@@ -1,0 +1,155 @@
+# ---- Ship fixtures ----
+
+- type: entity
+  parent: BaseComputer
+  id: DerelictNavConsole
+  name: navigation uplink
+  description: Plots jumps to derelicts the Company has flagged, pulls the tug out again, and files the quota. Examine it for the current contract status.
+  components:
+  - type: DerelictNavConsole
+  - type: ComputerVisuals
+    stateScreen: helm
+  - type: Godmode
+  - type: UserInterface
+    interfaces:
+      enum.WiresUiKey.Key:
+        type: WiresBoundUserInterface
+
+# ---- Objective ----
+
+- type: entity
+  parent: BaseItem
+  id: DerelictFlightRecorder
+  name: flight recorder
+  description: The sealed black box of a lost vessel. The Company pays very well to learn what happened here. Put it on a selling pallet.
+  components:
+  - type: Sprite
+    sprite: Objects/Devices/station_beacon.rsi
+    layers:
+    - state: icon
+    - state: blink
+      shader: unshaded
+  - type: Item
+    size: Large
+  - type: StaticPrice
+    price: 900
+  - type: DerelictObjective
+  - type: PointLight
+    radius: 1.5
+    energy: 1.2
+    color: "#ff5533"
+
+# ---- Threats ----
+
+- type: entity
+  abstract: true
+  parent: [ BaseSimpleMob, MobCombat ]
+  id: DerelictMobBase
+  components:
+  - type: Godmode
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+  - type: Physics
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeCircle
+          radius: 0.35
+        density: 200
+        mask:
+        - MobMask
+        layer:
+        - MobLayer
+  - type: MovementAlwaysTouching
+  - type: NoSlip
+  - type: Tag
+    tags:
+    - DoorBumpOpener
+    - StunImmune
+
+- type: entity
+  parent: DerelictMobBase
+  id: DerelictMobWatcher
+  name: weathered statue
+  description: You are almost sure it was facing the other way a moment ago.
+  components:
+  - type: DerelictMonster
+    behavior: Watcher
+    senseRange: 28
+  - type: Sprite
+    drawdepth: Mobs
+    noRot: true
+    sprite: Structures/Decoration/statues.rsi
+    state: venus_blue
+    color: "#8a8f96"
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 6
+    baseSprintSpeed: 6
+  - type: MeleeWeapon
+    hidden: true
+    attackRate: 0.8
+    soundHit:
+      path: /Audio/Weapons/smash.ogg
+    damage:
+      types:
+        Blunt: 40
+
+- type: entity
+  parent: DerelictMobBase
+  id: DerelictMobListener
+  name: eyeless thing
+  description: It has no eyes. Its head twitches towards every footstep. Walk. Whisper.
+  components:
+  - type: DerelictMonster
+    behavior: Listener
+    senseRange: 10
+    speechRange: 15
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: Mobs/Demons/abomination.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: abomination
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 5
+    baseSprintSpeed: 5
+  - type: MeleeWeapon
+    hidden: true
+    attackRate: 1.2
+    animation: WeaponArcClaw
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh3.ogg
+    damage:
+      types:
+        Slash: 22
+
+- type: entity
+  parent: DerelictMobBase
+  id: DerelictMobStalker
+  name: straggler
+  description: It keeps to the edge of your light and waits for one of you to wander off.
+  components:
+  - type: DerelictMonster
+    behavior: Stalker
+    senseRange: 30
+    companyRange: 5
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: Mobs/Ghosts/revenant.rsi
+    state: active
+    color: "#9a8cffcc"
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3.4
+    baseSprintSpeed: 3.4
+  - type: MeleeWeapon
+    hidden: true
+    attackRate: 1
+    animation: WeaponArcClaw
+    soundHit:
+      path: /Audio/Weapons/Xeno/alien_claw_flesh1.ogg
+    damage:
+      types:
+        Cold: 12
+        Slash: 10

@@ -1,0 +1,65 @@
+- type: playTimeTracker
+  id: JobDerelictSalvager
+
+- type: department
+  id: DerelictCrew
+  name: department-DerelictCrew
+  description: department-DerelictCrew-description
+  color: "#c9772b"
+  roles:
+  - DerelictSalvager
+
+- type: job
+  id: DerelictSalvager
+  name: job-name-derelict-salvager
+  description: job-description-derelict-salvager
+  playTimeTracker: JobDerelictSalvager
+  startingGear: DerelictSalvagerGear
+  icon: "JobIconShaftMiner"
+  supervisors: job-supervisors-derelict
+  access:
+  - Cargo
+  - Salvage
+  - Maintenance
+  - External
+  - Command
+  - Security
+  - Medical
+  - Chemistry
+  - Engineering
+  - Atmospherics
+  - Janitor
+  - Service
+  - Bar
+  - Kitchen
+
+- type: startingGear
+  id: DerelictSalvagerGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitSalvageSpecialist
+    back: ClothingBackpackSalvage
+    shoes: ClothingShoesBootsSalvage
+    outerClothing: ClothingOuterHardsuitSalvage
+    mask: ClothingMaskBreath
+    suitstorage: OxygenTankFilled
+    belt: ClothingBeltUtility
+    id: SalvagePDA
+    ears: ClothingHeadsetCargo
+    pocket1: FlashlightLantern
+    pocket2: Crowbar
+  storage:
+    back:
+    - BoxSurvival
+    - HandheldGPSBasic
+
+- type: entity
+  id: SpawnPointDerelictSalvager
+  parent: SpawnPointJobBase
+  name: salvager
+  components:
+  - type: SpawnPoint
+    job_id: DerelictSalvager
+  - type: Sprite
+    layers:
+    - state: green
+    - state: salvagespecialist

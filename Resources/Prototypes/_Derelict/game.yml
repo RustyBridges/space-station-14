@@ -1,0 +1,135 @@
+# ---- Station / map ----
+
+- type: entity
+  id: DerelictTugStation
+  parent:
+  - BaseStation
+  - BaseStationCargo
+  - BaseStationJobsSpawning
+  - BaseStationRecords
+  - BaseStationAlertLevels
+  - BaseStationNanotrasen
+  components:
+  - type: Transform
+  - type: StationBankAccount
+    primaryCut: 1
+    increasePerSecond: 0
+
+- type: gameMap
+  id: DerelictCrewShip
+  mapName: 'Salvage Tug'
+  mapPath: /Maps/_Derelict/crew_ship.yml
+  isGrid: true
+  minPlayers: 0
+  stations:
+    Tug:
+      stationProto: DerelictTugStation
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'ST-Magpie'
+      - type: StationJobs
+        overflowJobs:
+        - DerelictSalvager
+        availableJobs:
+          DerelictSalvager: [ -1, -1 ]
+
+- type: gameMapPool
+  id: DerelictMapPool
+  maps:
+  - DerelictCrewShip
+
+# ---- Preset / rule ----
+
+- type: gamePreset
+  id: Derelict
+  alias:
+  - derelict
+  name: derelict-title
+  description: derelict-description
+  showInVote: true
+  rules:
+  - DerelictRun
+
+- type: entity
+  id: DerelictRun
+  parent: BaseGameRule
+  components:
+  - type: DerelictRunRule
+    sites:
+    - DerelictSiteDropship
+    - DerelictSiteWhiteship
+    - DerelictSiteOutpost
+    - DerelictSiteHydro
+    - DerelictSiteAiSat
+    - DerelictSitePrisonShip
+    - DerelictSiteInterchange
+    monsters:
+    - DerelictMobWatcher
+    - DerelictMobListener
+    - DerelictMobStalker
+    scrap:
+    - SalvageSpawnerScrapCommon
+    - SalvageSpawnerScrapCommon
+    - SalvageSpawnerScrapCommon
+    - SalvageSpawnerScrapValuable
+    - SalvageSpawnerScrapValuable
+    - SalvageSpawnerTreasure
+    - SalvageSpawnerEquipment
+
+# ---- Sites ----
+
+- type: derelictSite
+  id: DerelictSiteDropship
+  name: derelict-site-dropship
+  mapPath: /Maps/Ruins/syndicate_dropship.yml
+  hazard: 1
+  duration: 480
+  extraScrap: 10
+
+- type: derelictSite
+  id: DerelictSiteWhiteship
+  name: derelict-site-whiteship
+  mapPath: /Maps/Ruins/whiteship_ancient.yml
+  hazard: 1
+  duration: 540
+  extraScrap: 12
+
+- type: derelictSite
+  id: DerelictSiteOutpost
+  name: derelict-site-outpost
+  mapPath: /Maps/Ruins/abandoned_outpost.yml
+  hazard: 2
+  duration: 660
+  extraScrap: 16
+
+- type: derelictSite
+  id: DerelictSiteHydro
+  name: derelict-site-hydro
+  mapPath: /Maps/Ruins/hydro_outpost.yml
+  hazard: 2
+  duration: 660
+  extraScrap: 16
+
+- type: derelictSite
+  id: DerelictSiteAiSat
+  name: derelict-site-aisat
+  mapPath: /Maps/Ruins/old_ai_sat.yml
+  hazard: 2
+  duration: 720
+  extraScrap: 18
+
+- type: derelictSite
+  id: DerelictSitePrisonShip
+  name: derelict-site-prison
+  mapPath: /Maps/Ruins/ruined_prison_ship.yml
+  hazard: 3
+  duration: 780
+  extraScrap: 22
+
+- type: derelictSite
+  id: DerelictSiteInterchange
+  name: derelict-site-interchange
+  mapPath: /Maps/Ruins/atmos_interchange.yml
+  hazard: 3
+  duration: 840
+  extraScrap: 24
