@@ -2,7 +2,6 @@ using Content.Server._Derelict.Components;
 using Content.Shared._Derelict;
 using Content.Shared.Examine;
 using Content.Shared.Popups;
-using Content.Shared.Verbs;
 using Robust.Shared.Prototypes;
 
 namespace Content.Server._Derelict;
@@ -11,83 +10,118 @@ public sealed partial class DerelictRunRuleSystem
 {
     [Dependency] private MetaDataSystem _metaData = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedUserInterfaceSystem _ui = default!;
+
+    private const string OptionLaunchPrefix = "launch:";
+    private const string OptionDepart = "depart";
+    private const string OptionQuota = "quota";
+
+    private TimeSpan _nextConsoleUpdate;
 
     private void InitializeConsole()
     {
-        SubscribeLocalEvent<DerelictNavConsoleComponent, GetVerbsEvent<ActivationVerb>>(OnConsoleVerbs);
+        SubscribeLocalEvent<DerelictNavConsoleComponent, BoundUIOpenedEvent>(OnConsoleOpened);
+        SubscribeLocalEvent<DerelictNavConsoleComponent, DerelictNavSelectMessage>(OnConsoleSelect);
         SubscribeLocalEvent<DerelictNavConsoleComponent, ExaminedEvent>(OnConsoleExamined);
     }
 
-    private void OnConsoleVerbs(Entity<DerelictNavConsoleComponent> ent, ref GetVerbsEvent<ActivationVerb> args)
+    public override void Update(float frameTime)
     {
-        if (!args.CanAccess || !args.CanInteract || !TryGetRun(out var run))
+        base.Update(frameTime);
+
+        // Keep the clock on open uplinks ticking.
+        if (Timing.CurTime < _nextConsoleUpdate)
             return;
 
-        var comp = run.Comp;
-        var user = args.User;
-        var console = ent.Owner;
+        _nextConsoleUpdate = Timing.CurTime + TimeSpan.FromSeconds(1);
+        UpdateConsoles();
+    }
+
+    private void OnConsoleOpened(Entity<DerelictNavConsoleComponent> ent, ref BoundUIOpenedEvent args)
+    {
+        UpdateConsoles();
+    }
+
+    private void UpdateConsoles()
+    {
+        if (!TryGetRun(out var run))
+            return;
+
+        DerelictNavBuiState? state = null;
+        var query = EntityQueryEnumerator<DerelictNavConsoleComponent, UserInterfaceComponent>();
+        while (query.MoveNext(out var uid, out _, out var ui))
+        {
+            if (!_ui.IsUiOpen((uid, ui), DerelictNavUiKey.Key))
+                continue;
+
+            state ??= new DerelictNavBuiState(GetStatusText(run.Comp), GetOptions(run.Comp));
+            _ui.SetUiState((uid, ui), DerelictNavUiKey.Key, state);
+        }
+    }
+
+    private List<DerelictNavOption> GetOptions(DerelictRunRuleComponent comp)
+    {
+        var options = new List<DerelictNavOption>();
 
         switch (comp.Phase)
         {
             case DerelictPhase.Orbit:
-            {
-                var priority = 0;
                 foreach (var siteId in comp.Offered)
                 {
                     if (!_proto.TryIndex(siteId, out var site))
                         continue;
 
-                    var id = siteId;
-                    args.Verbs.Add(new ActivationVerb
-                    {
-                        Text = Loc.GetString("derelict-nav-verb-launch",
+                    options.Add(new DerelictNavOption(OptionLaunchPrefix + siteId.Id,
+                        Loc.GetString("derelict-nav-verb-launch",
                             ("site", Loc.GetString(site.Name)),
                             ("hazard", site.Hazard),
-                            ("minutes", (int) site.Duration.TotalMinutes)),
-                        Priority = priority--,
-                        ConfirmationPopup = true,
-                        Act = () => ConsoleLaunch(console, user, id),
-                    });
+                            ("minutes", (int) site.Duration.TotalMinutes))));
                 }
 
                 break;
-            }
             case DerelictPhase.OnSite:
-                args.Verbs.Add(new ActivationVerb
-                {
-                    Text = Loc.GetString("derelict-nav-verb-depart"),
-                    ConfirmationPopup = true,
-                    Act = () =>
-                    {
-                        if (TryGetRun(out var current) && !Depart(current))
-                            _popup.PopupEntity(Loc.GetString("derelict-nav-fail-ftl"), console, user, PopupType.MediumCaution);
-                    },
-                });
+                options.Add(new DerelictNavOption(OptionDepart, Loc.GetString("derelict-nav-verb-depart")));
                 break;
             case DerelictPhase.QuotaDue:
-                args.Verbs.Add(new ActivationVerb
-                {
-                    Text = Loc.GetString("derelict-nav-verb-quota",
+                options.Add(new DerelictNavOption(OptionQuota,
+                    Loc.GetString("derelict-nav-verb-quota",
                         ("earned", comp.EarnedThisCycle),
-                        ("quota", comp.Quota)),
-                    ConfirmationPopup = true,
-                    Act = () =>
-                    {
-                        if (TryGetRun(out var current))
-                            SubmitQuota(current);
-                    },
-                });
+                        ("quota", comp.Quota))));
                 break;
         }
+
+        return options;
     }
 
-    private void ConsoleLaunch(EntityUid console, EntityUid user, ProtoId<DerelictSitePrototype> site)
+    private void OnConsoleSelect(Entity<DerelictNavConsoleComponent> ent, ref DerelictNavSelectMessage args)
     {
         if (!TryGetRun(out var run))
             return;
 
-        if (!Launch(run, site, out var reason) && reason != null)
-            _popup.PopupEntity(reason, console, user, PopupType.MediumCaution);
+        var user = args.Actor;
+
+        if (args.Id.StartsWith(OptionLaunchPrefix))
+        {
+            ProtoId<DerelictSitePrototype> site = args.Id[OptionLaunchPrefix.Length..];
+
+            // Only sites that are actually on offer; the id comes from the client.
+            if (!run.Comp.Offered.Contains(site))
+                return;
+
+            if (!Launch(run, site, out var reason) && reason != null)
+                _popup.PopupEntity(reason, ent.Owner, user, PopupType.MediumCaution);
+        }
+        else if (args.Id == OptionDepart)
+        {
+            if (run.Comp.Phase == DerelictPhase.OnSite && !Depart(run))
+                _popup.PopupEntity(Loc.GetString("derelict-nav-fail-ftl"), ent.Owner, user, PopupType.MediumCaution);
+        }
+        else if (args.Id == OptionQuota)
+        {
+            SubmitQuota(run);
+        }
+
+        UpdateConsoles();
     }
 
     private void OnConsoleExamined(Entity<DerelictNavConsoleComponent> ent, ref ExaminedEvent args)
@@ -99,7 +133,7 @@ public sealed partial class DerelictRunRuleSystem
     }
 
     /// <summary>
-    /// Multi-line status of the run, shown when examining the navigation console.
+    /// Multi-line status of the run, shown on the navigation console.
     /// </summary>
     public string GetStatusText(DerelictRunRuleComponent comp)
     {

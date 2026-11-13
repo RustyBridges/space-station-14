@@ -4,14 +4,18 @@
   parent: BaseComputer
   id: DerelictNavConsole
   name: navigation uplink
-  description: Plots jumps to derelicts the Company has flagged, pulls the tug out again, and files the quota. Examine it for the current contract status.
+  description: Plots jumps to derelicts the Company has flagged, pulls the tug out again, and files the quota. Click it to open the contract screen.
   components:
   - type: DerelictNavConsole
   - type: ComputerVisuals
     stateScreen: helm
   - type: Godmode
+  - type: ActivatableUI
+    key: enum.DerelictNavUiKey.Key
   - type: UserInterface
     interfaces:
+      enum.DerelictNavUiKey.Key:
+        type: DerelictNavBoundUserInterface
       enum.WiresUiKey.Key:
         type: WiresBoundUserInterface
 

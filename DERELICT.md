@@ -16,7 +16,7 @@ Everyone readies up in the lobby; all players spawn as Salvagers on the tug.
 
 ## How a run goes
 
-1. **Deep space.** On the bridge, right-click the *navigation uplink* and pick
+1. **Deep space.** On the bridge, click the *navigation uplink* and pick
    one of three offered derelicts. Examine the uplink at any time for quota,
    drops left and the site clock.
 2. **On site.** The tug docks (or parks next to the derelict). A clock runs:
@@ -24,7 +24,7 @@ Everyone readies up in the lobby; all players spawn as Salvagers on the tug.
    its hull starts breaking up at three quarters, and at zero the autopilot
    leaves with whoever is aboard. *Depart now* on the uplink leaves early.
 3. **Back in deep space.** Put salvage on the selling pallets in the main
-   corridor and sell it at the pallet console on the bridge. Buy gear at the
+   corridor and sell it at the console next to them. Buy gear at the
    cargo console; crates arrive on the buying pallets.
 4. After three drops the quota is due: submit it at the uplink. Met: a new,
    higher quota. Missed: the contract is terminated and the round ends.

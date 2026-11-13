@@ -17,21 +17,9 @@
   startingGear: DerelictSalvagerGear
   icon: "JobIconShaftMiner"
   supervisors: job-supervisors-derelict
-  access:
-  - Cargo
-  - Salvage
-  - Maintenance
-  - External
-  - Command
-  - Security
-  - Medical
-  - Chemistry
-  - Engineering
-  - Atmospherics
-  - Janitor
-  - Service
-  - Bar
-  - Kitchen
+  # It is the crew's own ship: nothing aboard should be locked to them.
+  accessGroups:
+  - AllAccess
 
 - type: startingGear
   id: DerelictSalvagerGear

@@ -7056,7 +7056,7 @@ entities:
   - uid: 2022
     components:
     - type: Transform
-      pos: -3.5,5.5
+      pos: -5.5,-0.5
       parent: 1
 - proto: CargoPalletBuy
   entities:

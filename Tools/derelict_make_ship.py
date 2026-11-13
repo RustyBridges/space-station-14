@@ -16,7 +16,8 @@ EXTRA = [
     ("SpawnPointObserver", [(-0.5, -1.5, None)]),
     ("DerelictNavConsole", [(-2.5, 6.5, None)]),
     ("ComputerCargoOrders", [(1.5, 6.5, None)]),
-    ("ComputerPalletConsole", [(-3.5, 5.5, None)]),
+    # In the main corridor next to the selling pallets, clear of the bridge seats.
+    ("ComputerPalletConsole", [(-5.5, -0.5, None)]),
     ("CargoPalletBuy", [(-4.5, -0.5, None), (-3.5, -0.5, None)]),
     ("CargoPalletSell", [(-4.5, -2.5, None), (-3.5, -2.5, None), (-2.5, -2.5, None)]),
 ]
